@@ -16,8 +16,8 @@ const App = () => {
   const [region, setRegion] = useState({
     latitude: null,
     longitude: null,
-    latitudeDelta: 0.009,
-    longitudeDelta: 0.009,
+    latitudeDelta: 0.022,
+    longitudeDelta: 0.022,
   });
 
   console.log('region: ', region);
@@ -56,7 +56,6 @@ const App = () => {
       },
     });
 
-    let location;
     if (!permission) {
       permission = await RNLocation.requestPermission({
         ios: 'whenInUse',
@@ -71,11 +70,28 @@ const App = () => {
         },
       });
       console.log(permission);
-      location = await RNLocation.getLatestLocation({timeout: 100});
-      console.log(location);
+      try {
+        const location = await RNLocation.getLatestLocation({timeout: 100});
+
+        if (location.longitude === null) {
+          return Promise.reject(location);
+        }
+
+        console.log('Berhasil ambil lokasi..!!', location);
+        setRegion({
+          ...region,
+          latitude: location.latitude,
+          longitude: location.longitude,
+        });
+
+        return Promise.resolve(location);
+      } catch (err) {
+        console.log(err);
+        Alert.alert('Error!!', 'Cannot get maps api, please try again later.');
+      }
     } else {
       try {
-        location = await RNLocation.getLatestLocation({timeout: 100});
+        const location = await RNLocation.getLatestLocation({timeout: 100});
 
         if (location.longitude === null) {
           return Promise.reject(location);
