@@ -2,7 +2,15 @@ import React, {useEffect, useState, useCallback} from 'react';
 
 import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import RNLocation from 'react-native-location';
-import {Dimensions, View, Text, Button, ActivityIndicator, TouchableOpacity} from 'react-native';
+import {
+  Dimensions,
+  View,
+  Text,
+  Button,
+  ActivityIndicator,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 
 const App = () => {
   const [region, setRegion] = useState({
@@ -34,7 +42,7 @@ const App = () => {
     showsBackgroundLocationIndicator: false,
   });
 
-  const getLocation = async () => {
+  const getLocation = useCallback(async () => {
     let permission = await RNLocation.requestPermission({
       ios: 'whenInUse',
       android: {
@@ -66,19 +74,26 @@ const App = () => {
       location = await RNLocation.getLatestLocation({timeout: 100});
       console.log(location);
     } else {
-      location = await RNLocation.getLatestLocation({timeout: 100});
-      console.log('Berhasil ambil lokasi..!!', location);
-      setRegion({
-        ...region,
-        latitude: location.latitude,
-        longitude: location.longitude,
-      })
-    }
-  };
+      try {
+        location = await RNLocation.getLatestLocation({timeout: 100});
 
-  useEffect(() => {
-    getLocation();
-  }, [])
+        if(location.longitude === null){
+          return Promise.reject(location)
+        }
+
+        console.log('Berhasil ambil lokasi..!!', location);
+        setRegion({
+          ...region,
+          latitude: location.latitude,
+          longitude: location.longitude,
+        });
+
+        return Promise.resolve(location)
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  }, [setRegion]);
 
   return region.latitude ? (
     <>
@@ -86,13 +101,22 @@ const App = () => {
         style={{width: Dimensions.get('window').width, height: 300}}
         provider={PROVIDER_GOOGLE}
         region={region}>
-        <Marker coordinate={{latitude: region.latitude, longitude: region.longitude}} />
+        <Marker
+          coordinate={{latitude: region.latitude, longitude: region.longitude}}
+        />
       </MapView>
       <View style={{alignItems: 'flex-end', marginTop: -20, marginRight: 20}}>
         <TouchableOpacity
           onPress={getLocation}
-          style={{padding: 10, borderRadius: 10, width: 40, backgroundColor: '#007fbf', alignItems: 'center', justifyContent: 'center'}}>
-          <Text style={{color: 'white'}}>[  ]</Text>
+          style={{
+            padding: 10,
+            borderRadius: 10,
+            width: 40,
+            backgroundColor: '#007fbf',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <Text style={{color: 'white'}}>[ ]</Text>
         </TouchableOpacity>
       </View>
       <View style={{alignItems: 'center', marginTop: 10}}>
@@ -103,9 +127,16 @@ const App = () => {
     </>
   ) : (
     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      <ActivityIndicator size="large" color="teal"  />
+      <ActivityIndicator size="large" color="#007fbf" />
+      <View style={{marginTop: 30, alignItems: 'center'}}>
+        <Text style={{fontSize: 16}}>Getting location...</Text>
+        <TouchableOpacity
+          onPress={getLocation}>
+          <Text style={{color: '#007fbf', textDecorationLine: 'underline'}}>try get location manualy</Text>
+        </TouchableOpacity>
+      </View>
     </View>
-  )
+  );
 };
 
 export default App;
