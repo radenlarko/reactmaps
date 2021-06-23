@@ -77,8 +77,8 @@ const App = () => {
       try {
         location = await RNLocation.getLatestLocation({timeout: 100});
 
-        if(location.longitude === null){
-          return Promise.reject(location)
+        if (location.longitude === null) {
+          return Promise.reject(location);
         }
 
         console.log('Berhasil ambil lokasi..!!', location);
@@ -88,12 +88,17 @@ const App = () => {
           longitude: location.longitude,
         });
 
-        return Promise.resolve(location)
+        return Promise.resolve(location);
       } catch (err) {
         console.log(err);
+        Alert.alert('Error!!', 'Cannot get maps api, please try again later.');
       }
     }
   }, [setRegion]);
+
+  useEffect(() => {
+    getLocation();
+  }, [getLocation]);
 
   return region.latitude ? (
     <>
@@ -130,9 +135,10 @@ const App = () => {
       <ActivityIndicator size="large" color="#007fbf" />
       <View style={{marginTop: 30, alignItems: 'center'}}>
         <Text style={{fontSize: 16}}>Getting location...</Text>
-        <TouchableOpacity
-          onPress={getLocation}>
-          <Text style={{color: '#007fbf', textDecorationLine: 'underline'}}>try get location manualy</Text>
+        <TouchableOpacity onPress={getLocation}>
+          <Text style={{color: '#007fbf', textDecorationLine: 'underline'}}>
+            try get location manualy
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
