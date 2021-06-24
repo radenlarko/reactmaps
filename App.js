@@ -78,7 +78,7 @@ const App = () => {
       });
       console.log(permission);
       try {
-        const location = await RNLocation.getLatestLocation({timeout: 100});
+        const location = await RNLocation.getLatestLocation({timeout: 3000, maximumAge: 1000});
 
         if (location.longitude === null) {
           return Promise.reject(location);
@@ -98,7 +98,7 @@ const App = () => {
       }
     } else {
       try {
-        const location = await RNLocation.getLatestLocation({timeout: 100});
+        const location = await RNLocation.getLatestLocation({timeout: 3000, maximumAge: 1000});
 
         if (location.longitude === null) {
           return Promise.reject(location);
@@ -149,6 +149,7 @@ const App = () => {
       <MapView
         style={{width: Dimensions.get('window').width, height: 300}}
         provider={PROVIDER_GOOGLE}
+        showsUserLocation
         region={region}>
         <Marker
           coordinate={{latitude: region.latitude, longitude: region.longitude}}
