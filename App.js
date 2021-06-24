@@ -144,7 +144,7 @@ const App = () => {
     getAddress();
   }, [getLocation, getAddress]);
 
-  return region.latitude ? (
+  return region.latitude !== 40.7809261 ? (
     <>
       <MapView
         style={{width: Dimensions.get('window').width, height: 300}}
